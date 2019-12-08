@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Form para Endereço.
+ * Formulário para Endereço.
  * 
  * @author Felipe Tadeu
  *

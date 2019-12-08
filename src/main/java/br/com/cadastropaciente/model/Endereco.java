@@ -1,7 +1,6 @@
 package br.com.cadastropaciente.model;
 
-import java.util.UUID;
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,8 +24,9 @@ import lombok.Setter;
 public class Endereco {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private UUID uuid;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", unique = true)
+	private Long id;
 
 	private Long cep;
 

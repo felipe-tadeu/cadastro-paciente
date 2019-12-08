@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Form para entidade Paciente.
+ * Formulário para entidade Paciente.
  * 
  * @author Felipe Tadeu
  *
@@ -21,7 +21,7 @@ public class PacienteForm {
 	
 	private String nome;
 	
-    private Long cpf;
+    private String cpf;
     
     private boolean seDesejaUsarNomeSocial;
     
