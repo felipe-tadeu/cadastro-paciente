@@ -1,6 +1,5 @@
 package br.com.cadastropaciente.service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,16 +7,14 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import br.com.cadastropaciente.config.excepiton.custom.CampoFormularioInvalidoException;
 import br.com.cadastropaciente.config.excepiton.custom.FalhaRequisicaoBancoDadosException;
-import br.com.cadastropaciente.config.excepiton.custom.PacienteJaCadastradoException;
 import br.com.cadastropaciente.controller.CadastroPacienteController;
 import br.com.cadastropaciente.model.Paciente;
 import br.com.cadastropaciente.model.dto.PacienteDto;
 import br.com.cadastropaciente.model.form.PacienteForm;
 import br.com.cadastropaciente.repository.PacienteRepository;
 import br.com.cadastropaciente.service.mapper.PacienteMapper;
-import br.com.caelum.stella.validation.CPFValidator;
+import br.com.cadastropaciente.service.utils.ValidacaoService;
 
 /**
  * Service para métodos do controller {@link CadastroPacienteController}.
@@ -32,11 +29,14 @@ public class CadastroPacienteService {
 	/* DEPENDÊNCIAS */
 	private final PacienteRepository repository;
 	private final PacienteMapper mapper;
+	private final ValidacaoService validacaoService;
 
 	/* CONSTRUTOR */
-	public CadastroPacienteService(PacienteRepository repository, PacienteMapper mapper) {
+	public CadastroPacienteService(PacienteRepository repository, PacienteMapper mapper,
+			ValidacaoService validacaoService) {
 		this.repository = repository;
 		this.mapper = mapper;
+		this.validacaoService = validacaoService;
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class CadastroPacienteService {
 	 */
 	public PacienteDto cadastrarPaciente(PacienteForm form) {
 
-		validarFormulario(form);
+		this.validacaoService.validarFormularioCadastroPaciente(form, repository);
 
 		Paciente pacienteSalvo;
 		try {
@@ -61,62 +61,15 @@ public class CadastroPacienteService {
 	}
 
 	/**
-	 * Função para validação dos dados do formulário de cadastro de paciente.
+	 * Obtém o menor número de prontuário disponível.
 	 * 
-	 * @param form {@link PacienteForm} com dados para validação
-	 * 
-	 * @throws CampoFormularioInvalidoException quando houver algum campo do
-	 *                                          formulário inválido
-	 * @throws PacienteJaCadastradoException    quando já houver algum paciente com
-	 *                                          dado do formulário cadastrado
+	 * @return número de prontuário
 	 */
-	private void validarFormulario(PacienteForm form) {
-
-		// validação do nome
-		if (form.getNome() == null || form.getNome().isEmpty() || !form.getNome().matches(
-				"^[A-Za-z]+([\\']{1}[A-Za-z]+([ ]{1})?)?(([A-Za-z]+[\\']{1})?([A-Za-z]*)?([A-Za-z]+([ ]{1})?))*$")) {
-			throw new CampoFormularioInvalidoException("Nome inválido.");
+	public Long obterNumeroPronturario() {
+		if (!this.repository.findByNumeroProntuario(1L).isPresent()) {
+			return 1L;
 		}
-
-		// validação do CPF
-		CPFValidator cpfValidator = new CPFValidator();
-		try {
-			cpfValidator.assertValid(form.getCpf());
-		} catch (Exception e) {
-			throw new CampoFormularioInvalidoException("CPF inválido.");
-		}
-		if (this.repository.findByCpf(form.getCpf()).isPresent()) {
-			throw new PacienteJaCadastradoException("CPF já cadastrado.");
-		}
-
-		// validação do nome social
-		if (form.isSeDesejaUsarNomeSocial()) {
-			if (form.getNomeSocial() == null || form.getNomeSocial().isEmpty() || !form.getNomeSocial().matches(
-					"^[A-Za-z]+([\\']{1}[A-Za-z]+([ ]{1})?)?(([A-Za-z]+[\\']{1})?([A-Za-z]*)?([A-Za-z]+([ ]{1})?))*$")) {
-				throw new CampoFormularioInvalidoException("Nome social inválido.");
-			}
-		} else {
-			form.setNomeSocial(null);
-		}
-
-		// validação número prontuário
-		if (form.getNumeroProntuario() == null) {
-			throw new CampoFormularioInvalidoException("Número do prontuário inválido.");
-		}
-		if (this.repository.findByNumeroProntuario(form.getNumeroProntuario()).isPresent()) {
-			throw new PacienteJaCadastradoException("Número do prontuário já cadastrado.");
-		}
-
-		// validação data de nascimento
-		if (form.getDataNascimento().isAfter(LocalDate.now())) {
-			throw new CampoFormularioInvalidoException("Data de nascimento inválida.");
-		}
-
-		// validação sexo
-		if (form.getSexo() == null) {
-			throw new CampoFormularioInvalidoException("Sexo inválido.");
-		}
-		
+		return this.repository.obterNumeroProntuario().get();
 	}
 
 	// TODO validações e tratamentos

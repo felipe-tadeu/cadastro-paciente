@@ -45,7 +45,8 @@ public class CadastroPacienteController {
 	 * @param form {@link PacienteForm} com dados do paciente.
 	 * @return {@link PacienteDto} com dados do paciente cadastrado.
 	 * 
-	 * @see {@link CadastroPacienteService#cadastrarPaciente(PacienteForm) Cadastrar Paciente}
+	 * @see {@link CadastroPacienteService#cadastrarPaciente(PacienteForm) Cadastrar
+	 *      Paciente}
 	 */
 	@PostMapping
 	@ApiOperation("Cadastra um novo paciente.")
@@ -55,6 +56,20 @@ public class CadastroPacienteController {
 				.buildAndExpand(pacienteCadastradoDto.getId()).toUri();
 		return ResponseEntity.created(uri).body(pacienteCadastradoDto);
 
+	}
+
+	/**
+	 * Endpoint para obter o menor número de prontuário disponível.
+	 * 
+	 * @return menor número de prontuário disponível.
+	 * 
+	 * @see {@link CadastroPacienteService#obterNumeroPronturario() Obter Número de
+	 *      Prontuário}
+	 */
+	@GetMapping("/obter-numero-prontuario")
+	@ApiOperation("Obtém o menor número de prontuário disponível.")
+	public ResponseEntity<Long> obterNumeroProntuario() {
+		return ResponseEntity.ok(this.service.obterNumeroPronturario());
 	}
 
 	/**
@@ -76,7 +91,8 @@ public class CadastroPacienteController {
 	 * @param id do paciente para detalhamento de dados
 	 * @return {@link PacienteDto} com dados do paciente
 	 * 
-	 * @see {@link CadastroPacienteService#detalharDadosPaciete(Long) Detalhar Dados do Paciente}
+	 * @see {@link CadastroPacienteService#detalharDadosPaciete(Long) Detalhar Dados
+	 *      do Paciente}
 	 */
 	@GetMapping("/{id}")
 	@ApiOperation("Obtém dados de um paciente.")
@@ -87,11 +103,12 @@ public class CadastroPacienteController {
 	/**
 	 * Endpoint para atualizar dados de um paciente.
 	 * 
-	 * @param id do paciente para atualização
+	 * @param id   do paciente para atualização
 	 * @param form {@link PacienteForm} com dados para atualização
 	 * @return {@link PacienteDto} com dados da entidade atualizados
 	 * 
-	 * @see {@link CadastroPacienteService#atualizarDadosPaciente(Long, PacienteForm) Atualizar Dados do Paciente}
+	 * @see {@link CadastroPacienteService#atualizarDadosPaciente(Long, PacienteForm)
+	 *      Atualizar Dados do Paciente}
 	 */
 	@PutMapping("/{id}")
 	@ApiOperation("Atualiza dados de um paciente.")
@@ -103,6 +120,8 @@ public class CadastroPacienteController {
 	 * Endpoint para deletar paciente cadastrado.
 	 * 
 	 * @param id do paciente a ser removido
+	 * 
+	 * @see {@link CadastroPacienteService#deletarPaciente(Long) Deletar Paciente}
 	 */
 	@DeleteMapping("/{id}")
 	@ApiOperation("Deleta um paciente.")
